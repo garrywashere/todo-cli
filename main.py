@@ -1,9 +1,14 @@
 # Made with ❤️ by Garry
 # 27/01/24
 
+import platform, tabulate, argparse, getpass, os
 from InquirerPy import inquirer, separator
-import platform, tabulate, getpass, os
 from database import database
+
+parser = argparse.ArgumentParser(description='A Command-Line To-Do app, written in Python 🐍.')
+parser.add_argument('--godmode', action='store_true', help='Enable dangerous options')
+args = parser.parse_args()
+godmode = args.godmode
 
 clear = lambda: os.system("cls") if os == "Windows" else os.system("clear")
 
@@ -14,9 +19,7 @@ class menu:
         clear()
 
         print(f"Welcome {getpass.getuser().capitalize()}\n")
-        option = inquirer.select(
-            message = "What would you like to do?",
-            choices = [
+        options = [
                 "Show Tasks", # 0
                 "Add New Task", # 1
                 "Edit a Task", # 2
@@ -25,6 +28,14 @@ class menu:
                 separator.Separator(),
                 "Exit." # 6
         ]
+
+        if godmode:
+            options.append(separator.Separator())
+            options.append("CLEAR ALL")
+
+        option = inquirer.select(
+            message = "What would you like to do?",
+            choices = options
         ).execute()
 
         match option:
@@ -46,6 +57,9 @@ class menu:
                 clear()
                 exit()
 
+            case "CLEAR ALL":
+                tasks.clear_all()
+
             case _:
                 print("Error")
                 menu.main()
@@ -54,17 +68,54 @@ class tasks:
     def show():
         tasks = db.task_list()
         print(
-            tabulate.tabulate(tasks, headers = ["Title", "Description", "Time Created"])
+            tabulate.tabulate(tasks, headers = ["Title", "Description", "Created/Edited"]),
         )
+        input("\nPress Enter.")
+        menu.main()
 
     def add():
-        pass
+        title = ""
+        while not title:
+            title = inquirer.text(
+                message = "Title:",
+            ).execute()
+        description = inquirer.text(
+            message = "Description:"
+        ).execute()
+
+        db.task_add(title, description)
+
+        input("\nTask Added.")
+        menu.main()
 
     def edit():
         pass
 
     def delete():
-        pass
+        tasks = [task[0] for task in db.task_list()]
+        if not tasks:
+            input("\nNo Tasks.")
+        else:
+            task = inquirer.fuzzy(
+                message = "Select a task to Delete:",
+                choices = tasks
+            ).execute()
+
+            db.task_del(db.lookup_by_title(task))
+
+            input("\nTask Deleted.")
+        menu.main()
+
+
+    def clear_all():
+        print("THIS WILL CLEAR THE DATABASE,")
+        option = inquirer.confirm(
+            message = "ARE YOU SURE?"
+        ).execute()
+        if option:
+            db.drop()
+            input("\nTable Dropped.")
+        menu.main()
 
 if __name__ == "__main__":
     try:

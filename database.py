@@ -3,9 +3,11 @@
 
 class database:
     def __init__(self):
-        import sqlite3, time, os
+        import sqlite3, datetime, os
 
         DB_FILE = "data.db"
+
+        self.date = lambda: datetime.datetime.now().strftime("%I:%M %p %a %d %b %Y")
 
         init_db = False
         if not os.path.exists(DB_FILE):
@@ -18,7 +20,7 @@ class database:
             self.cursor.execute("""
             CREATE TABLE tasks (
                 task_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                task_title TEXT NOT NULL,
+                task_title TEXT NOT NULL UNIQUE,
                 task_desc TEXT,
                 task_created REAL
             );
@@ -38,7 +40,7 @@ class database:
         if not desc:
             desc = "N/A"
         
-        created = time.time()
+        created = self.date()
 
         self.cursor.execute(f"""
         INSERT INTO tasks (task_title, task_desc, task_created)
@@ -74,16 +76,12 @@ class database:
             print("Error editing task:", e)
     
     def lookup_by_title(self, title):
-        tasks = self.cursor.execute(f"""
-        SELECT task_id, task_title, task_desc, task_created FROM tasks
+        id = self.cursor.execute(f"""
+        SELECT task_id FROM tasks
         WHERE task_title = \"{title}\"
-        """).fetchall()
+        """).fetchone()[0]
 
-        results = []
-        for task in tasks:
-            results.append(task)
-        
-        return results
+        return id
         
     def lookup_by_id(self, id):
         tasks = self.cursor.execute(f"""
@@ -96,6 +94,10 @@ class database:
             results.append(task)
         
         return results
+
+    def drop(self):
+        self.cursor.execute("DELETE FROM tasks;")
+        self.db.commit()
     
     def end(self):
         self.db.commit()
