@@ -52,7 +52,10 @@ class menu:
 
 class tasks:
     def show():
-        pass
+        tasks = db.task_list()
+        print(
+            tabulate.tabulate(tasks, headers = ["Title", "Description", "Time Created"])
+        )
 
     def add():
         pass

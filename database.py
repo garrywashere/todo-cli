@@ -25,6 +25,15 @@ class database:
             """)
             self.db.commit()
 
+    def task_list(self):
+        tasks = self.cursor.execute("SELECT task_title, task_desc, task_created FROM tasks;").fetchall()
+
+        results = []
+        for task in tasks:
+            results.append(task)
+        
+        return results
+
     def task_add(self, title, desc):
         if not desc:
             desc = "N/A"
