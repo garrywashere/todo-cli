@@ -89,23 +89,40 @@ class tasks:
         menu.main()
 
     def edit():
-        pass
+        title = tasks.search()
+        print("\nLeave blank for no change.")
+        new_title = inquirer.text(
+                message = "New Title:",
+            ).execute()
+        if new_title:
+            db.task_edit(db.lookup_by_title(title), new_title, "")
+        description = inquirer.text(
+            message = "New Description:"
+        ).execute()
+        if description:
+            db.task_edit(db.lookup_by_title(title), "", description)
+
+        input("\nTask Edited.")
+        menu.main()
 
     def delete():
+        db.task_del(db.lookup_by_title(tasks.search()))
+
+        input("\nTask Deleted.")
+        menu.main()
+
+    def search():
         tasks = [task[0] for task in db.task_list()]
         if not tasks:
             input("\nNo Tasks.")
+            menu.main()
         else:
             task = inquirer.fuzzy(
                 message = "Select a task to Delete:",
                 choices = tasks
             ).execute()
-
-            db.task_del(db.lookup_by_title(task))
-
-            input("\nTask Deleted.")
-        menu.main()
-
+        
+        return task
 
     def clear_all():
         print("THIS WILL CLEAR THE DATABASE,")
