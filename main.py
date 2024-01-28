@@ -1,17 +1,21 @@
 # Made with ❤️ by Garry
 # 27/01/24
 
+# Import required Modules
 import platform, tabulate, argparse, getpass, os
 from InquirerPy import inquirer, separator
 from database import database
 
+# Setup parser for extra options
 parser = argparse.ArgumentParser(description='A Command-Line To-Do app, written in Python 🐍.')
 parser.add_argument('--godmode', action='store_true', help='Enable dangerous options')
 args = parser.parse_args()
 godmode = args.godmode
 
+# Setup a clear command that works on all OSes
 clear = lambda: os.system("cls") if os == "Windows" else os.system("clear")
 
+# Initialise database
 db = database()
 
 class menu:
@@ -65,7 +69,7 @@ class menu:
                 menu.main()
 
 class tasks:
-    def show():
+    def show(): # Request a list of tasks from database.py, then display them in a table
         tasks = db.task_list()
         print(
             tabulate.tabulate(tasks, headers = ["Title", "Description", "Created/Edited"]),
@@ -73,7 +77,7 @@ class tasks:
         input("\nPress Enter.")
         menu.main()
 
-    def add():
+    def add(): # Add a task to the database
         title = ""
         while not title:
             title = inquirer.text(
@@ -88,7 +92,7 @@ class tasks:
         input("\nTask Added.")
         menu.main()
 
-    def edit():
+    def edit(): # Lookup existing titles in the database and edit them
         title = tasks.search()
         print("\nLeave blank for no change.")
         new_title = inquirer.text(
@@ -105,13 +109,13 @@ class tasks:
         input("\nTask Edited.")
         menu.main()
 
-    def delete():
+    def delete(): # Delete tasks or "Mark as Done"
         db.task_del(db.lookup_by_title(tasks.search()))
 
         input("\nTask Deleted.")
         menu.main()
 
-    def search():
+    def search(): # Internal search function for delete and edit
         tasks = [task[0] for task in db.task_list()]
         if not tasks:
             input("\nNo Tasks.")
@@ -124,7 +128,7 @@ class tasks:
         
         return task
 
-    def clear_all():
+    def clear_all(): # Hidden option for testing/debug purposes
         print("THIS WILL CLEAR THE DATABASE,")
         option = inquirer.confirm(
             message = "ARE YOU SURE?"
