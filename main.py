@@ -87,10 +87,15 @@ class tasks:
             message = "Description:"
         ).execute()
 
-        db.task_add(title, description)
+        try:
+            db.task_add(title, description)
 
-        input("\nTask Added.")
-        menu.main()
+            input("\nTask Added.")
+            menu.main()
+        except Exception as e:
+            print("\nCannot add task:", e)
+
+            tasks.add()
 
     def edit(): # Lookup existing titles in the database and edit them
         title = tasks.search()

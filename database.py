@@ -30,9 +30,7 @@ class database:
     def task_list(self): # Return a list of tasks
         tasks = self.cursor.execute("SELECT task_title, task_desc, task_created FROM tasks;").fetchall()
 
-        results = []
-        for task in tasks:
-            results.append(task)
+        results = [task for task in tasks]
         
         return results
 

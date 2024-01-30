@@ -9,3 +9,4 @@ Just a simple To-Do app; I decided to make this as part of a series of side proj
 
 ## Features to Add
 - Encryption
+- Catch `KeyboardInterrupt`
